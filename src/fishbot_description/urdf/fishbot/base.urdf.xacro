@@ -1,0 +1,48 @@
+<?xml version="1.0"?>
+<robot xmlns:xacro="http://www.ros.org/wiki/xacro">
+    <!-- 调用机器人的质量和惯性 -->
+    <xacro:include filename="$(find fishbot_description)/urdf/fishbot/common_inertia.xacro" />
+    
+    <!-- 声明base模块 -->
+    <xacro:macro name="base_xacro" params="length radius">
+    <link name="base_footprint"/>
+        <link name="base_link">
+
+        <visual>
+            <!-- 沿着自己几何中心的偏移和旋转量 -->
+            <origin xyz="0.0 0.0 0.0" rpy="0.0 0.0 0.0"/>
+            <geometry>
+                <!-- 圆柱 半径0.10m 高度 length=0.12m -->
+                <cylinder radius="${radius}" length="${length}"/>
+                <!-- 圆柱 直径=0.2 -->
+                <!-- <cylinder radius="0.10" length="0.12"/> -->
+            </geometry>
+            <material name="white">
+                <color rgba="1.0 0.0 0.0 1"/>  
+            </material>
+        </visual>
+        <!-- 添加碰撞属性 -->
+        <collision>
+            <origin xyz="0.0 0.0 0.0" rpy="0.0 0.0 0.0"/>
+            <geometry>
+                <!-- 圆柱 半径0.10m 高度 length=0.12m -->
+                <cylinder radius="${radius}" length="${length}"/>
+                <!-- 圆柱 直径=0.2 -->
+                <!-- <cylinder radius="0.10" length="0.12"/> -->
+            </geometry>
+            <material name="white">
+                <color rgba="1.0 0.0 0.0 0.5"/>
+            </material>  
+        </collision>
+        <!-- 调用 质量为1.0千克 -->
+        <xacro:cylinder_inertia m="1.0" r="${radius}" h="${length}"/>
+    </link>
+        
+        <joint name="base_joint" type="fixed">
+            <parent link="base_footprint"/>
+            <child link="base_link"/>
+            <origin xyz="0.0 0.0 ${length/2.0 + 0.05}"/>
+            
+        </joint>
+    </xacro:macro>
+</robot>

@@ -1,0 +1,171 @@
+<?xml version="1.0"?>
+<!-- 根标签：robot，同时声明xacro命名空间，让文件支持xacro宏语法 -->
+<robot xmlns:xacro="http://www.ros.org/wiki/xacro">
+
+  <!-- 定义xacro宏，名字为gazebo_sensor_plugin，调用这个宏就能快速添加激光雷达 -->
+  <xacro:macro name="gazebo_sensor_plugin">
+    <!-- Gazebo传感器挂载配置：将传感器绑定到机器人的"laser_link"连杆上（laser_link是激光雷达的安装部件） -->
+    <gazebo reference="laser_link">
+      <!-- 定义传感器：名字为laserscan，类型为ray（射线型，激光雷达的核心原理是发射射线检测障碍物） -->
+      <sensor name="laserscan" type="ray">
+        <!-- 加载Gazebo-ROS通信插件：把激光雷达数据转换成ROS能识别的消息 -->
+        <plugin name="laserscan" filename="libgazebo_ros_ray_sensor.so">
+          <ros>
+            <!-- 设置ROS命名空间为根目录（/），传感器话题会直接发布在/下，而非子目录 -->
+            <namespace>/</namespace>
+            <!-- 话题重映射：把插件默认的扫描话题重命名为"~/scan"（最终实际话题一般是/scan） -->
+            <remapping>~/out:=scan</remapping>
+          </ros>
+          <!-- 传感器输出的数据类型：ROS标准的激光扫描消息类型，其他节点（如导航）可直接订阅 -->
+          <output_type>sensor_msgs/LaserScan</output_type>
+          <!-- 激光数据的坐标系：与挂载的连杆laser_link一致，确保坐标位置准确 -->
+          <frame_name>laser_link</frame_name>
+        </plugin>
+
+        <!-- 传感器是否一直开启：true表示仿真中激光雷达持续工作，不关闭 -->
+        <always_on>true</always_on>
+        <!-- 是否在Gazebo界面可视化激光：true表示能看到红色的激光射线，方便调试 -->
+        <visualize>true</visualize>
+        <!-- 传感器更新频率：5Hz，即每秒发布5次激光扫描数据（频率越高越实时，仿真开销也越大） -->
+        <update_rate>10</update_rate>
+        <!-- 传感器相对于laser_link的位姿：x/y/z平移（米）、滚转/俯仰/偏航（弧度），全0表示无偏移 -->
+        <pose>0 0 0 0 0 0</pose>
+
+        <!-- 射线传感器的核心参数配置 -->
+        <ray>
+          <!-- 扫描范围配置（水平方向） -->
+          <scan>
+            <horizontal>
+              <!-- 水平采样点数：360个点，对应一圈360度扫描 -->
+              <samples>360</samples>
+              <!-- 角度分辨率：1.0表示每个采样点间隔1度（360个点刚好扫360度） -->
+              <resolution>1.000000</resolution>
+              <!-- 扫描最小角度：0弧度（0度） -->
+              <min_angle>0.000000</min_angle>
+              <!-- 扫描最大角度：6.28弧度（约360度，2π），即全向扫描 -->
+              <max_angle>6.280000</max_angle>
+            </horizontal>
+          </scan>
+
+          <!-- 扫描距离配置 -->
+          <range>
+            <!-- 最小探测距离：0.12米（比这近的物体检测不到） -->
+            <min>0.120000</min>
+            <!-- 最大探测距离：8米（比这远的物体检测不到） -->
+            <max>8.0</max>
+            <!-- 距离分辨率：0.015米（测量精度1.5厘米） -->
+            <resolution>0.010000</resolution>
+          </range>
+
+          <!-- 传感器噪声配置（模拟真实激光雷达的测量误差） -->
+          <noise>
+            <!-- 噪声类型：高斯噪声（最常见的随机误差） -->
+            <type>gaussian</type>
+            <!-- 噪声均值：0（误差围绕真实值上下波动） -->
+            <mean>0.0</mean>
+            <!-- 噪声标准差：0.01米（误差范围约±1厘米） -->
+            <stddev>0.005</stddev>
+          </noise>
+        </ray>
+      </sensor>
+    </gazebo>
+  
+  <!-- 参考的坐标系是imu_link -->
+  <gazebo reference="imu_link">
+  <sensor name="imu_sensor" type="imu">
+    <plugin name="imu_plugin" filename="libgazebo_ros_imu_sensor.so">
+      <ros>
+        <namespace>/</namespace>
+        <remapping>~/out:=imu</remapping>
+      </ros>
+<initial_orientation_as_reference>false</initial_orientation_as_reference>
+    </plugin>
+      <update_rate>100</update_rate>
+      <always_on>true</always_on>
+      <!-- 六轴噪声设置 -->
+      <imu>
+        <angular_velocity>
+          <x>
+            <noise type="gaussian">
+              <mean>0.0</mean>
+              <stddev>2e-4</stddev>
+              <bias_mean>0.0000075</bias_mean>
+              <bias_stddev>0.000008</bias_stddev>
+            </noise>
+          </x>
+          <y>
+            <noise type="gaussian">
+              <mean>0.0</mean>
+              <stddev>2e-4</stddev>
+              <bias_mean>0.0000075</bias_mean>
+              <bias_stddev>0.000008</bias_stddev>
+            </noise>
+          </y>
+          <z>
+            <noise type="gaussian">
+              <mean>0.0</mean>
+              <stddev>2e-4</stddev>
+              <bias_mean>0.0000075</bias_mean>
+              <bias_stddev>0.000008</bias_stddev>
+            </noise>
+          </z>
+        </angular_velocity>
+        <linear_acceleration>
+          <x>
+            <noise type="gaussian">
+              <mean>0.0</mean>
+              <stddev>1.7e-2</stddev>
+              <bias_mean>0.1</bias_mean>
+              <bias_stddev>0.001</bias_stddev>
+            </noise>
+          </x>
+          <y>
+            <noise type="gaussian">
+              <mean>0.0</mean>
+              <stddev>1.7e-2</stddev>
+              <bias_mean>0.1</bias_mean>
+              <bias_stddev>0.001</bias_stddev>
+            </noise>
+          </y>
+          <z>
+            <noise type="gaussian">
+              <mean>0.0</mean>
+              <stddev>1.7e-2</stddev>
+              <bias_mean>0.1</bias_mean>
+              <bias_stddev>0.001</bias_stddev>
+            </noise>
+          </z>
+        </linear_acceleration>
+      </imu>
+  </sensor>
+</gazebo>
+
+<!-- 参考坐标系 -->
+<gazebo reference="camera_link">
+    <sensor type="depth" name="camera_sensor">
+        <plugin name="depth_camera" filename="libgazebo_ros_camera.so">
+            <frame_name>camera_optical_link</frame_name>
+        </plugin>
+        <always_on>true</always_on>
+        <update_rate>10</update_rate>
+        <camera name="camera">
+            <horizontal_fov>1.5009831567</horizontal_fov>
+            <image>
+                <width>800</width>
+                <height>600</height>
+                <format>R8G8B8</format>
+            </image>
+            <distortion>
+                <k1>0.0</k1>
+                <k2>0.0</k2>
+                <k3>0.0</k3>
+                <p1>0.0</p1>
+                <p2>0.0</p2>
+                <center>0.5 0.5</center>
+            </distortion>
+        </camera>
+    </sensor>
+</gazebo>
+  </xacro:macro>
+
+</robot>

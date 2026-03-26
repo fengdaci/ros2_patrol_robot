@@ -1,0 +1,46 @@
+<?xml version="1.0"?>
+<robot xmlns:xacro="http://www.ros.org/wiki/xacro">
+    <xacro:include filename="$(find fishbot_description)/urdf/fishbot/common_inertia.xacro" />
+    
+    <xacro:macro name="imu_xacro" params="xyz">
+    <!-- 机器人IMU部件，惯性单元的容器 -->
+     <link name="imu_link">
+        <visual>
+            <!-- 沿着自己几何中心的偏移和旋转量 -->
+            <origin xyz="0.0 0.0 0.0" rpy="0.0 0.0 0.0"/>
+            <geometry>
+                <!-- 正方体 -->
+                <box size="0.02 0.02 0.02"/>
+            </geometry>
+            <material name="black">
+                <color rgba="0.0 0.0 0.0 0.5"/>
+            </material>
+        </visual>
+        <!-- 添加碰撞属性 -->
+        <collision>
+            <!-- 沿着自己几何中心的偏移和旋转量 -->
+            <origin xyz="0.0 0.0 0.0" rpy="0.0 0.0 0.0"/>
+            <geometry>
+                <!-- 正方体 -->
+                <box size="0.02 0.02 0.02"/>
+            </geometry>
+            <material name="black">
+                <color rgba="0.0 0.0 0.0 0.5"/>
+            </material>
+        </collision>
+
+     
+        <xacro:box_inertia m="0.05" w="0.02" h="0.02" d="0.02"/>
+     </link>
+
+    <!-- 机器人关节 用于组合机器人的链接  必须通过<joint>定义它们的父子关系、相对位置和连接类型-->
+     <joint name="imu_joint" type="fixed">
+        <!-- 父链接 -->
+        <parent link="base_link"/>
+        <!-- 子链接 -->
+        <child link="imu_link"/>
+        <!-- 子关节在父关节上的偏移和旋转 -->
+        <origin xyz="${xyz}" />
+     </joint>
+    </xacro:macro>
+</robot>

@@ -1,0 +1,43 @@
+<?xml version="1.0"?>
+<robot xmlns:xacro="http://www.ros.org/wiki/xacro">
+<xacro:include filename="$(find fishbot_description)/urdf/fishbot/common_inertia.xacro" />
+    <xacro:macro name="camera_xacro" params="xyz">
+    <!-- 机器人IMU部件（注释笔误，可改成“相机部件”） -->
+     <link name="camera_link"> <!-- 改：唯一名称，不会和任何文件重复 -->
+        <visual>
+            <origin xyz="0.0 0.0 0.0" rpy="0.0 0.0 0.0"/>
+            <geometry>
+                <box size="0.02 0.10 0.02"/>
+            </geometry>
+            <material name="black">
+                <color rgba="0.0 0.0 0.0 1"/>
+            </material>
+        </visual>
+        <!-- 添加碰撞属性 -->
+        <collision>
+        <origin xyz="0.0 0.0 0.0" rpy="0.0 0.0 0.0"/>
+            <geometry>
+                <box size="0.02 0.10 0.02"/>
+            </geometry>
+        </collision>
+     
+     <xacro:box_inertia m="0.05" w="0.04" h="0.04" d="0.04"/>
+     </link>
+       
+         <!-- 深度相机传感器仿真 -->
+    <link name="camera_optical_link"></link>
+    <!-- 机器人关节 -->
+     <joint name="fishbot_camera_joint" type="fixed"> <!-- 改：对应唯一关节名 -->
+        <parent link="base_link"/>
+        <child link="camera_link"/> <!-- 匹配上面的link名 -->
+        <origin xyz="${xyz}" rpy="0.0 0.0 0.0"/> <!-- 补rpy，规范且不报错 -->
+     </joint>
+
+    
+     <joint name="camera_optical_joint" type="fixed"> 
+        <parent link="camera_link"/>
+        <child link="camera_optical_link"/> 
+        <origin xyz="0 0 0" rpy="${-pi/2} 0.0 ${-pi/2}"/> 
+     </joint>
+    </xacro:macro>
+</robot>

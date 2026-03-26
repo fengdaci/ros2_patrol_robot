@@ -1,0 +1,63 @@
+<?xml version="1.0"?>
+<robot xmlns:xacro="http://www.ros.org/wiki/xacro">
+    <xacro:include filename="$(find fishbot_description)/urdf/fishbot/common_inertia.xacro" />
+    
+    <xacro:macro name="caster_xacro" params="caster_name xyz">
+     <link name="${caster_name}_link">
+       
+     <gazebo reference="${caster_name}_link">
+        <mu1 value="0.0" />
+        <mu2 value="0.0" />d
+        <kp value="50000.0" />
+        <kd value="1.0" />
+     
+     </gazebo>
+        <visual>
+            <!-- 沿着自己几何中心的偏移和旋转量 -->
+            <origin xyz="0.0 0.0 0.0" rpy="1.57079 0.0 0.0"/>
+                <!-- 圆球 -->
+                    <geometry>
+                        <sphere radius="0.016"/>
+                    </geometry>
+            <!-- R（Red）：红色占比
+                    G（Green）：绿色占比
+                    B（Blue）：蓝色占比
+                    A（Alpha）：透明度（1.0 完全不透明，0.0 完全透明 -->
+            <material name="blue">
+                <color rgba="0.0 1.0 0.0 0.3"/>
+            </material>
+        </visual>
+        <!-- 添加碰撞属性 -->
+        <collision>
+         <!-- 沿着自己几何中心的偏移和旋转量 -->
+            <origin xyz="0.0 0.0 0.0" rpy="1.57079 0.0 0.0"/>
+                <!-- 圆球 -->
+                    <geometry>
+                        <sphere radius="0.016"/>
+                    </geometry>
+            <!-- R（Red）：红色占比
+                    G（Green）：绿色占比
+                    B（Blue）：蓝色占比
+                    A（Alpha）：透明度（1.0 完全不透明，0.0 完全透明 -->
+            <material name="blue">
+                <color rgba="0.0 1.0 0.0 0.3"/>
+            </material>  
+        </collision>
+     
+     
+        <xacro:sphere_inertia m="0.05" r="0.016" />
+     </link>
+
+    <!-- 机器人关节 用于组合机器人的链接  必须通过<joint>定义它们的父子关系、相对位置和连接类型-->
+     <joint name="${caster_name}_joint" type="fixed">
+        <!-- 父链接 -->
+        <parent link="base_link"/>
+        <!-- 子链接 -->
+        <child link="${caster_name}_link"/>
+        <!-- 子关节在父关节上的偏移和旋转 -->
+        <origin xyz="${xyz}" rpy="0 0 0"/>
+        <!-- 表示旋转轴和方向 -->
+        <axis xyz="0.0 0.0 0.0"/>
+     </joint>
+    </xacro:macro>
+</robot>

@@ -1,0 +1,58 @@
+<?xml version='1.0'?>
+<robot xmlns:xacro="http://www.ros.org/wiki/xacro">
+<!-- 1. 宏定义：代码复用的基础 -->
+<xacro:macro name="fishbot_ros2_control">
+    <!-- 2. ros2_control核心标签：定义硬件接口规范 -->
+    <ros2_control name="FishBotGazeboSystem" type="system">
+        <!-- 2.1 硬件插件：指定Gazebo和ros2_control的对接插件 -->
+        <hardware>
+            <plugin>gazebo_ros2_control/GazeboSystem</plugin>
+        </hardware>
+        <!-- 2.2 左车轮关节：定义“指令接收”和“状态反馈”接口 -->
+        <joint name="left_wheel_joint">
+            <!-- 速度指令接口：机器人能接收“速度控制指令” -->
+            <command_interface name="velocity">
+                <param name="min">-1</param>   <!-- 左轮最大反向速度（rad/s） -->
+                <param name="max">1</param>    <!-- 左轮最大正向速度（rad/s） -->
+            </command_interface>
+            <!-- 力矩指令接口：机器人能接收“力矩控制指令” -->
+            <command_interface name="effort">
+                <param name="min">-0.1</param> <!-- 左轮最大反向力矩（N·m） -->
+                <param name="max">0.1</param>  <!-- 左轮最大正向力矩（N·m） -->
+            </command_interface>
+            <!-- 状态反馈接口：机器人能反馈给控制器的状态 -->
+            <state_interface name="position" />  <!-- 反馈左轮旋转位置（弧度） -->
+            <state_interface name="velocity" />  <!-- 反馈左轮实际速度（rad/s）→ 闭环核心！ -->
+            <state_interface name="effort" />    <!-- 反馈左轮实际输出力矩（N·m） -->
+        </joint>
+        <!-- 2.3 右车轮关节：和左轮配置完全一致，无需重复解释 -->
+        <joint name="right_wheel_joint">
+            <command_interface name="velocity">
+                <param name="min">-1</param>
+                <param name="max">1</param>
+            </command_interface>
+            <command_interface name="effort">
+                <param name="min">-0.1</param>
+                <param name="max">0.1</param>
+            </command_interface>
+            <state_interface name="position" />
+            <state_interface name="velocity" />
+            <state_interface name="effort" />
+        </joint>
+    </ros2_control>
+
+    <!-- 3. Gazebo插件标签：加载ros2_control的Gazebo驱动库 -->
+    <gazebo>
+        <plugin filename="libgazebo_ros2_control.so" name="gazebo_ros2_control">
+            <!-- 3.1 关联外置控制器配置文件 → 核心！ -->
+            <parameters>$(find fishbot_description)/config/fishbot_ros2_controller.yaml</parameters>
+            <!-- 3.2 话题重映射：统一话题名称，方便SLAM/控制节点调用 -->
+            <ros>
+                <namespace>/</namespace>
+                <remapping>/fishbot_diff_drive_controller/odom:=/odom</remapping>
+                <remapping>/fishbot_diff_drive_controller/cmd_vel_unstamped:=/cmd_vel</remapping>
+            </ros>
+        </plugin> 
+    </gazebo>    
+ </xacro:macro>    
+</robot>

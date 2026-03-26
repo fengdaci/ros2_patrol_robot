@@ -1,0 +1,63 @@
+controller_manager:
+  ros__parameters:
+    update_rate: 100 #HZ
+    use_sim_time: true
+
+    fishbot_joint_state_broadcaster:
+      type: joint_state_broadcaster/JointStateBroadcaster
+    fishbot_effort_controller:
+      type: effort_controllers/JointGroupEffortController
+    fishbot_diff_drive_controller:
+      type: diff_drive_controller/DiffDriveController
+    
+
+fishbot_effort_controller:
+ ros__parameters:
+  joints:
+    - left_wheel_joint
+    - right_wheel_joint
+  command_interfaces:
+    - effort
+  state_interfaces:
+    - position
+    - velocity
+    - effort
+
+
+fishbot_diff_drive_controller:
+  ros__parameters:
+    left_wheel_names: ["left_wheel_joint"]
+    right_wheel_names: ["right_wheel_joint"]
+
+    wheel_separation: 0.20
+    #wheels_per_side
+    wheel_radius: 0.032
+    
+    #轮子间距倍数
+    wheel_separation_multiplier: 1.0
+    left_wheel_radius_multiplier: 1.0
+    right_wheel_radius_multiplier: 1.0
+
+    publish_rate: 100.0
+    odom_frame_id: odom
+    base_frame_id: base_footprint
+    # 里程计位姿（x,y,z,roll,pitch,yaw）的协方差，代表每个维度的噪声 / 不确定性
+    # 数值越大 → 噪声越高 → SLAM 越不信任该维度；数值越小 → 噪声越低 → SLAM 越信任
+    pose_covariance_diagonal : [0.001, 0.001, 0.0, 0.0, 0.0, 0.01]
+    
+    # 里程计速度（线速度 x/y/z，角速度 roll/pitch/yaw）的协方差
+    # 逻辑和位姿协方差一致，重点关注线速度 x 和角速度 z（差速机器人主要运动维度）
+    twist_covariance_diagonal : [0.001, 0.0, 0.0, 0.0, 0.0, 0.01]
+
+    open_loop: false
+    enable_odom_tf: true
+
+    cmd_vel_timeout: 0.2
+    use_stamped_vel: false
+
+
+
+
+
+
+

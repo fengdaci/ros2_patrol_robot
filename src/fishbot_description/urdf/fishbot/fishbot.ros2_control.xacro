@@ -1,0 +1,55 @@
+<?xml version='1.0'?>
+<robot xmlns:xacro="http://www.ros.org/wiki/xacro">
+<!-- 定义名为fishbot_ros2_control的xacro宏，用于复用ROS2控制配置 -->
+<xacro:macro name="fishbot_ros2_control">
+    <!-- ROS2控制核心标签，指定硬件名称和类型（system表示系统级硬件） -->
+    <ros2_control name="FishBotGazeboSystem" type="system">
+        <!-- 硬件配置，指定Gazebo的ROS2控制插件 -->
+        <!-- plugin用于设置驱动库的名字 -->
+        <hardware>
+            <plugin>gazebo_ros2_control/GazeboSystem</plugin>
+        </hardware>
+        <!-- 左车轮关节的控制配置 -->
+        <joint name="left_wheel_joint">
+            <!-- 速度指令接口，设置速度指令的最小/最大值 -->
+            <command_interface name="velocity">
+                <param name="min">-1</param>   <!-- 速度下限 -->
+                <param name="max">1</param>    <!-- 速度上限 -->
+            </command_interface>
+            <!-- 力矩指令接口，设置力矩指令的最小/最大值 -->
+            <command_interface name="effort">
+                <param name="min">-0.1</param> <!-- 力矩下限 -->
+                <param name="max">0.1</param>  <!-- 力矩上限 -->
+            </command_interface>
+            <!-- 状态反馈接口，分别获取关节的位置、速度、力矩信息 -->
+            <state_interface name="position" />
+            <state_interface name="velocity" />
+            <state_interface name="effort" />
+        </joint>
+        <!-- 右车轮关节的控制配置（与左车轮配置一致） -->
+        <joint name="right_wheel_joint">
+            <command_interface name="velocity">
+                <param name="min">-1</param>
+                <param name="max">1</param>
+            </command_interface>
+            <command_interface name="effort">
+                <param name="min">-0.1</param>
+                <param name="max">0.1</param>
+            </command_interface>
+            <state_interface name="position" />
+            <state_interface name="velocity" />
+            <state_interface name="effort" />
+        </joint>
+    </ros2_control>
+    <gazebo>
+        <plugin filename="libgazebo_ros2_control.so" name="gazebo_ros2_control">
+            <parameters>$(find fishbot_description)/config/fishbot_ros2_controller.yaml</parameters>
+            <ros>
+                <namespace>/</namespace>
+                <remapping>/fishbot_diff_drive_controller/odom:=/odom</remapping>
+                <remapping>/fishbot_diff_drive_controller/cmd_vel_unstamped:=/cmd_vel</remapping>
+            </ros>
+        </plugin> 
+    </gazebo>    
+ </xacro:macro>    
+</robot>

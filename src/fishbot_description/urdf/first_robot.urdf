@@ -1,0 +1,44 @@
+<?xml version="1.0"?>
+<robot name="first_robot">
+    <!-- 机器人的基础部分 -->
+    <link name="base_link">
+        <visual>
+            <!-- 沿着自己几何中心的偏移和旋转量 -->
+            <origin xyz="0.0 0.0 0.0" rpy="0.0 0.0 0.0"/>
+            <geometry>
+                <!-- 圆柱 半径0.10m 高度 length=0.12m -->
+                <cylinder radius="0.10" length="0.12"/>
+                <!-- 圆柱 直径=0.2 -->
+                <!-- <cylinder radius="0.10" length="0.12"/> -->
+            </geometry>
+            <material name="white">
+                <color rgba="1.0 1.0 1.0 0.5"/>
+            </material>
+        </visual>
+    </link>
+
+    <!-- 机器人附加件，惯性单元的容器 -->
+    <link name="imu_link">
+        <visual>
+            <!-- 沿着自己几何中心的偏移和旋转量 -->
+            <origin xyz="0.0 0.0 0.0" rpy="0.0 0.0 0.0"/>
+            <geometry>
+                <!-- 正方体 -->
+                <box size="0.02 0.02 0.02"/>
+            </geometry>
+            <material name="black">
+                <color rgba="0.0 0.0 0.0 0.5"/>
+            </material>
+        </visual>
+    </link>
+
+    <!-- 机器人关节 用于组合机器人的链接 -->
+    <joint name="imu_joint" type="fixed">
+        <!-- 父链接 -->
+        <parent link="base_link"/>
+        <!-- 子链接 -->
+        <child link="imu_link"/>
+        <!-- 子关节在父关节上的偏移和旋转 -->
+        <origin xyz="0.0 0.0 0.03" rpy="0.0 0.0 0.0"/>
+    </joint>
+</robot>
